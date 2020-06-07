@@ -25,7 +25,7 @@ api.get("/create-point", (require, response) => {
     // require.query();//QueryStrings da URL
     console.log(require.query);
 
-    return response.render('create-point.html')
+    return response.render('create-point.html', {saved: true})
 })
 
 api.post("/savepoint", (require, response) => {
@@ -51,9 +51,9 @@ api.post("/savepoint", (require, response) => {
     ];
 
     console.log(require.body);
-    
 
-    
+
+
     function afterInsertData(error) {
         if (error) {
             return console.log(error)
@@ -61,7 +61,7 @@ api.post("/savepoint", (require, response) => {
         console.log("Cadastrado com sucesso");
         console.log(this);
 
-        return response.send('Ok');
+        return response.render('create-point.html', {saved: true})
 
     }
     db.run(query, values, afterInsertData)
@@ -69,7 +69,16 @@ api.post("/savepoint", (require, response) => {
 })
 
 api.get("/search", (require, response) => {
-    db.all(`SELECT * FROM places`, function (error, rows) {
+
+    const search = require.query.search;
+
+    console.log(search);
+    
+
+    if(search == "") {
+        return response.render('search-results.html', {total: 0})
+    }
+    db.all(`SELECT * FROM places WHERE city LIKE '%${search}%'`, function (error, rows) {
         if (error) {
             return console.log(error);
         }
